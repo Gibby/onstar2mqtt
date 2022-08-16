@@ -19,7 +19,7 @@ const onstarConfig = {
     refreshInterval: parseInt(process.env.ONSTAR_REFRESH) || (30 * 60 * 1000), // 30 min
     allowCommands: _.toLower(_.get(process, 'env.ONSTAR_ALLOW_COMMANDS', 'true')) === 'true'
 };
-logger.info('OnStar Config', {onstarConfig});
+logger.info('OnStar Config', {onstarConfig: _.omit(onstarConfig, ['password', 'onStarPin'])});
 
 const mqttConfig = {
     host: process.env.MQTT_HOST || 'localhost',
@@ -30,7 +30,7 @@ const mqttConfig = {
     prefix: process.env.MQTT_PREFIX || 'homeassistant',
     namePrefix: process.env.MQTT_NAME_PREFIX || '',
 };
-logger.info('MQTT Config', {mqttConfig});
+logger.info('MQTT Config', {mqttConfig: _.omit(mqttConfig, 'password')});
 
 const init = () =>  new Commands(OnStar.create(onstarConfig));
 
@@ -48,7 +48,7 @@ const getVehicles = async commands => {
 
 const getCurrentVehicle = async commands => {
     const vehicles = await getVehicles(commands);
-    const currentVeh = _.find(vehicles, v => v.vin.toLowerCase() === onstarConfig.vin.toLowerCase()); 
+    const currentVeh = _.find(vehicles, v => v.vin.toLowerCase() === onstarConfig.vin.toLowerCase());
     if (!currentVeh) {
         throw new Error(`Configured vehicle VIN ${onstarConfig.vin} not available in account vehicles`);
     }
